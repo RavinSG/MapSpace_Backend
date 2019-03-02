@@ -35,6 +35,21 @@ loginData = {
     'schema': user_schema
 }
 
+land_value_schema = {
+
+}
+
+landValue = {
+    'item_title': 'landValue',
+    'additional_lookup': {
+        'url': 'regex("[\w]+")',
+        'field': 'location'
+    },
+    'resource_methods': ['GET', 'POST'],
+    'schema': land_value_schema
+}
+
 DOMAIN = {
-    'loginData': loginData
+    'loginData': loginData,
+    'landValue': landValue
 }
