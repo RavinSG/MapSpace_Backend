@@ -1,6 +1,5 @@
 from math import sin, cos, radians, asin, acos, sqrt, pi
 
-
 r = 6371
 
 

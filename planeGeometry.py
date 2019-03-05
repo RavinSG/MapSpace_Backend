@@ -30,19 +30,48 @@ def get_line_equation(segment):
 
     m = (point_a[1] - point_b[1]) / (point_a[0] - point_b[0])
     c = point_a[1] - point_a[0] * m
-    return m, c
+    return [m, c]
+
+
+def solve_equation(line1, line2):
+
+    x = - (line1[1] - line2[1]) / (line1[0] - line2[0])
+    y = line1[0] * x + line1[1]
+    print(x, y)
+
+
+def point_on_line(point, line_equation):
+    x = point[0]
+    y = point[1]
+    m = line_equation[0]
+    c = line_equation[1]
+
+    if y == (m * x + c):
+        return True
+    else:
+        return False
 
 
 def check_intersection(coordinates):
     segments = get_segments(coordinates)
     line_equations = []
     for segment in segments:
-        print(segment)
         line_equations.append(get_line_equation(segment))
+
+    for i in range(len(line_equations) - 2):
+        intersections = []
+        line = line_equations[i]
+        for j in range(i + 2, len(line_equations)):
+            intersections.append(solve_equation(line, line_equations[j]))
+        print(intersections)
 
     return line_equations
 
 
-points = [[3, 4], [5, 11], [12, 8], [9, 5], [5, 6]]
+points = [[3, 4], [5, 11], [12, 9], [9, 5], [5, 6]]
+check_intersection(points)
 # seg = get_segments([[3, 4], [5, 11], [12, 8], [9, 5], [5, 6]])
-print(check_intersection(points))
+# print(check_intersection(points))
+
+# solve_equation([2, 2], [4, 1])
+# print(point_on_line([0.5, 3], [8, 2]))
