@@ -68,8 +68,8 @@ def check_intersection(coordinates):
     return line_equations
 
 
-points = [[3, 4], [5, 11], [12, 9], [9, 5], [5, 6]]
-check_intersection(points)
+# points = [[3, 4], [5, 11], [12, 9], [9, 5], [5, 6]]
+# check_intersection(points)
 # seg = get_segments([[3, 4], [5, 11], [12, 8], [9, 5], [5, 6]])
 # print(check_intersection(points))
 
