@@ -1,8 +1,20 @@
+import math
+
+
 def calculate_area(coordinates):
-    if len(coordinates) < 3:
+    if len(coordinates) == 2:
+        alpha = get_alpha(coordinates[0][0])
+        dist = (coordinates[0][0] - coordinates[1][0]) ** 2 + (coordinates[0][1] - coordinates[1][1]) ** 2
+        dist = dist ** 0.5
+        return dist * alpha
+
+    elif len(coordinates) < 3:
         return "At least three points are needed"
+
     else:
         area = 0
+        alpha = get_alpha(coordinates[0][0])
+        print('alpha - ', alpha)
         try:
             for point in range(len(coordinates) - 1):
                 area += coordinates[point][0] * coordinates[point + 1][1]
@@ -13,7 +25,17 @@ def calculate_area(coordinates):
         except:
             return "Invalid coordinates"
 
-        return abs(area / 2)
+        true_area = area * alpha ** 2
+
+        return abs(true_area)
+
+
+def get_alpha(lng):
+    degree = lng // 1 + (lng % 1) * 60
+    radian = degree * math.pi / 180
+    alpha = 111 * math.cos(radian)
+
+    return alpha
 
 
 def get_segments(coordinates):
@@ -34,7 +56,6 @@ def get_line_equation(segment):
 
 
 def solve_equation(line1, line2):
-
     x = - (line1[1] - line2[1]) / (line1[0] - line2[0])
     y = line1[0] * x + line1[1]
     print(x, y)
@@ -66,7 +87,6 @@ def check_intersection(coordinates):
         print(intersections)
 
     return line_equations
-
 
 # points = [[3, 4], [5, 11], [12, 9], [9, 5], [5, 6]]
 # check_intersection(points)

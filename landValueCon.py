@@ -42,7 +42,21 @@ def get_land_value(location, history=False):
         return land["value"]
 
 
-# add_land_value("colombo", 1000000, "SK")
-# update_land_value("colombo", 2000000, "bleh")
-hist = get_land_value("colombo", history=False)
-print(hist)
+def get_all_values():
+    cursor = land_value.find({})
+    lands = []
+    for doc in cursor:
+        land = {
+            'Land_Area': doc['land_area'],
+            'City': doc['city'],
+            'Price': doc['price'],
+            'ID': doc['id'],
+            'description': 'Purchase a land for your dream home from urban and sub urban areas of Ambewela City. Lands starting from 170,000 LKR onwards',
+            'src': doc['src']
+        }
+        lands.append(land)
+
+    return lands
+
+
+get_all_values()

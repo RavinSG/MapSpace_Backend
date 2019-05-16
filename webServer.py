@@ -1,10 +1,13 @@
-from flask import Flask, request
+from flask import Flask, request, session, jsonify
 import userCon
-import planeGeometry
+import planeGeometry as plane
 import landValueCon
 import ast
+import os
+import json
 
 app = Flask(__name__)
+app.secret_key = os.urandom(64)
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -24,7 +27,7 @@ def calculateArea():
         coordinates = request.form['coordinates']
         coordinates = ast.literal_eval(coordinates)
         if type == 'plane':
-            area = planeGeometry.calculate_area(coordinates)
+            area = plane.calculate_area(coordinates)
             return str(area) + " sq.Kms"
         elif type == 'sphere':
             return "Still not implemented"
@@ -34,7 +37,7 @@ def calculateArea():
         return "Only post methods are allowed"
 
 
-@app.route('/landvalue', methods=["GET", "POST"])
+@app.route('/python/landvalue', methods=["GET"])
 def landValue():
     if request.method == "GET":
         location = request.args.get('location')
@@ -43,7 +46,138 @@ def landValue():
             print(value)
             return str(value) + " per Perch"
         else:
-            return "Enter Location"
+            land_values = landValueCon.get_all_values()
+            return jsonify(land_values)
+
+
+@app.route('/python/login', methods=["POST"])
+def login():
+    if request.method == "POST":
+        data = json.loads(request.data.decode())
+        username = data['username']
+        password = data['password']
+        print(username, password)
+        if userCon.verify_user(username, password):
+            session['username'] = username
+            msg = {
+                "success": True,
+                "message": "This is the admin secret"
+            }
+            return jsonify(msg)
+        else:
+            msg = {
+                "success": False,
+                "message": "Invalid Credentials"
+            }
+            return jsonify(msg)
+
+
+@app.route('/python/database', methods=["GET"])
+def message():
+    if request.method == "GET":
+        msg = {
+            "message": "This is only for admins",
+            "success": True
+        }
+        return jsonify(msg)
+
+
+@app.route('/python/get_cords', methods=["POST"])
+def show_cords():
+    if request.method == "POST":
+        print('\n')
+        data = json.loads(request.data.decode())
+        print(data)
+        sGeo = data['sphere']
+        cords = data['cords']['val']
+        points = []
+        for i in range(len(cords)):
+            if i % 2 == 0:
+                point = [cords[i]]
+            else:
+                point.append(cords[i])
+                points.append(point)
+        if sGeo:
+            print('need sgeo')
+        else:
+            print(points)
+            return jsonify(plane.calculate_area(points))
+
+
+@app.route('/python/get_weather', methods=["GET"])
+def show_weather():
+    if request.method == "GET":
+        return jsonify(data)
+
+
+data = {
+    "message": "",
+    "cod": "200",
+    "city_id": 2885679,
+    "calctime": 0.0823,
+    "cnt": 3,
+    "list": [{
+        "main": {
+            "temp": 266.052,
+            "temp_min": 266.052,
+            "temp_max": 266.052,
+            "pressure": 957.86,
+            "sea_level": 1039.34,
+            "grnd_level": 957.86,
+            "humidity": 90},
+        "wind": {
+            "speed": 1.16,
+            "deg": 139.502},
+        "clouds": {
+            "all": 0
+        },
+        "weather": [{
+            "id": 800,
+            "main": "Clear",
+            "description": "Sky is Clear",
+            "icon": "01n"
+        }],
+        "dt": 1485722804}, {
+        "main": {
+            "temp": 263.847,
+            "temp_min": 263.847,
+            "temp_max": 263.847,
+            "pressure": 955.78,
+            "sea_level": 1037.43,
+            "grnd_level": 955.78,
+            "humidity": 91},
+        "wind": {
+            "speed": 1.49,
+            "deg": 159
+        },
+        "clouds": {
+            "all": 0
+        },
+        "weather": [{
+            "id": 800,
+            "main": "Clear",
+            "description": "Sky is Clear",
+            "icon": "01n"}],
+        "dt": 1485749608}, {
+        "main": {
+            "temp": 274.9,
+            "pressure": 1019,
+            "temp_min": 274.15,
+            "temp_max": 275.15,
+            "humidity": 88},
+        "wind": {
+            "speed": 1,
+            "deg": 0},
+        "clouds": {
+            "all": 76},
+        "weather": [
+            {"id": 500,
+             "main": "Rain",
+             "description": "light rain",
+             "icon": "10d"}],
+        "dt": 1485773778
+    }]
+}
 
 if __name__ == "__main__":
     app.run()

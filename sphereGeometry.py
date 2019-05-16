@@ -41,4 +41,4 @@ def sphere_triangle_area(coordinates):
     return area
 
 
-print(sphere_triangle_area([[27.807886, 88.204596], [30.232151, 81.337642], [28.824699, 80.081678]]))
+# print(sphere_triangle_area([[27.807886, 88.204596], [30.232151, 81.337642], [28.824699, 80.081678]]))
