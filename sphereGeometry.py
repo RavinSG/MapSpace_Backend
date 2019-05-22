@@ -1,4 +1,26 @@
 from math import sin, cos, radians, asin, acos, sqrt, pi
+from pyproj import Proj
+from shapely.geometry import shape
+
+
+def calculate_sphere_area(coordinates):
+    lat, lon = zip(*coordinates)
+
+    lat_min = min(lat)
+    lat_max = max(lat)
+    lat_avg = (lat_min + lat_max) / 2
+
+    lon_avg = sum(lon) / len(lon)
+
+    pa = Proj(f'+proj=aea +lat_1={lat_min} +lat_2={lat_max} +lat_0={lat_avg} +lon_0={lon_avg}')
+
+    x, y = pa(lon, lat)
+    cop = {"type": "Polygon", "coordinates": [zip(x, y)]}
+
+    area = shape(cop).area
+    print('area', area)
+    return area / 10 ** 6
+
 
 r = 6371
 
@@ -41,4 +63,6 @@ def sphere_triangle_area(coordinates):
     return area
 
 
-# print(sphere_triangle_area([[27.807886, 88.204596], [30.232151, 81.337642], [28.824699, 80.081678]]))
+def calculate_area(points):
+    area = calculate_sphere_area(points)
+    return area

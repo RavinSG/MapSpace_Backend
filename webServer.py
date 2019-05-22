@@ -1,6 +1,7 @@
 from flask import Flask, request, session, jsonify
 import userCon
 import planeGeometry as plane
+import sphereGeometry as sphere
 import landValueCon
 import ast
 import os
@@ -8,6 +9,8 @@ import json
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
+
+UNIT_TYPE = 'sq.kms'
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -40,11 +43,11 @@ def calculateArea():
 @app.route('/python/landvalue', methods=["GET"])
 def landValue():
     if request.method == "GET":
-        location = request.args.get('location')
-        if location is not None:
-            value = landValueCon.get_land_value(location)
+        city = request.args.get('city')
+        if city is not None:
+            value = landValueCon.get_all_values(city)
             print(value)
-            return str(value) + " per Perch"
+            return jsonify(value)
         else:
             land_values = landValueCon.get_all_values()
             return jsonify(land_values)
@@ -54,22 +57,47 @@ def landValue():
 def login():
     if request.method == "POST":
         data = json.loads(request.data.decode())
-        username = data['username']
-        password = data['password']
-        print(username, password)
-        if userCon.verify_user(username, password):
-            session['username'] = username
-            msg = {
-                "success": True,
-                "message": "This is the admin secret"
-            }
-            return jsonify(msg)
+        print(data)
+        if data != {}:
+            username = data['username']
+            password = data['password']
+            print(username, password)
+            if userCon.verify_user(username, password):
+                session['username'] = username
+                msg = {
+                    "success": True,
+                    "message": "This is the admin secret"
+                }
+                return jsonify(msg)
+            else:
+                msg = {
+                    "success": False,
+                    "message": "Invalid Credentials"
+                }
+                return jsonify(msg)
         else:
-            msg = {
-                "success": False,
-                "message": "Invalid Credentials"
-            }
-            return jsonify(msg)
+            if 'username' in session.keys():
+                return jsonify({
+                    "success": True,
+                    "message": "This is the admin secret"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid Credentials"
+                })
+
+
+@app.route('/python/logout', methods=["POST"])
+def logout():
+    if 'username' in session.keys():
+        msg = 'logout'
+    else:
+        msg = 'refresh'
+    session.clear()
+    return jsonify({
+        "message": msg
+    })
 
 
 @app.route('/python/database', methods=["GET"])
@@ -99,6 +127,7 @@ def show_cords():
                 points.append(point)
         if sGeo:
             print('need sgeo')
+            return jsonify(sphere.calculate_area(points))
         else:
             print(points)
             return jsonify(plane.calculate_area(points))

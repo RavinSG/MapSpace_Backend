@@ -25,7 +25,7 @@ def calculate_area(coordinates):
         except:
             return "Invalid coordinates"
 
-        true_area = area * alpha ** 2
+        true_area = area * alpha ** 2 / 2
 
         return abs(true_area)
 
@@ -88,10 +88,18 @@ def check_intersection(coordinates):
 
     return line_equations
 
-# points = [[3, 4], [5, 11], [12, 9], [9, 5], [5, 6]]
-# check_intersection(points)
-# seg = get_segments([[3, 4], [5, 11], [12, 8], [9, 5], [5, 6]])
-# print(check_intersection(points))
 
-# solve_equation([2, 2], [4, 1])
-# print(point_on_line([0.5, 3], [8, 2]))
+def get_t_value(line1, line2):
+    p1, p2 = line1
+    p3, p4 = line2
+
+    x1, y1 = p1
+    x2, y2 = p2
+    x3, y3 = p3
+    x4, y4 = p4
+
+    t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x1)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+    print(t)
+
+
+# get_t_value([[-5, 0], [0, 4]], [[5, 0], [0, 0]])
