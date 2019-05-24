@@ -2,6 +2,8 @@ from flask import Flask, request, session, jsonify
 import userCon
 import planeGeometry as plane
 import sphereGeometry as sphere
+import unitConverter as conv
+import userDetailsCon as user
 import landValueCon
 import ast
 import os
@@ -104,7 +106,7 @@ def logout():
 def message():
     if request.method == "GET":
         msg = {
-            "message": "This is only for admins",
+            "message": "Congratulations, you are an Admin :)",
             "success": True
         }
         return jsonify(msg)
@@ -112,101 +114,56 @@ def message():
 
 @app.route('/python/get_cords', methods=["POST"])
 def show_cords():
+    global UNIT_TYPE
     if request.method == "POST":
         print('\n')
         data = json.loads(request.data.decode())
         print(data)
         sGeo = data['sphere']
         cords = data['cords']['val']
-        points = []
-        for i in range(len(cords)):
-            if i % 2 == 0:
-                point = [cords[i]]
-            else:
-                point.append(cords[i])
-                points.append(point)
+        points = convert_to_points(convert)
         if sGeo:
             print('need sgeo')
-            return jsonify(sphere.calculate_area(points))
+            area = sphere.calculate_area(points)
         else:
             print(points)
-            return jsonify(plane.calculate_area(points))
+            area = plane.calculate_area(points)
+        area = conv.convert_area(area, 'sq.kms', UNIT_TYPE)
+        return jsonify(area)
 
 
-@app.route('/python/get_weather', methods=["GET"])
-def show_weather():
-    if request.method == "GET":
-        return jsonify(data)
+def convert_to_points(coords):
+    points = []
+    for i in range(len(coords)):
+        if i % 2 == 0:
+            point = [coords[i]]
+        else:
+            point.append(coords[i])
+            points.append(point)
+
+    return points
 
 
-data = {
-    "message": "",
-    "cod": "200",
-    "city_id": 2885679,
-    "calctime": 0.0823,
-    "cnt": 3,
-    "list": [{
-        "main": {
-            "temp": 266.052,
-            "temp_min": 266.052,
-            "temp_max": 266.052,
-            "pressure": 957.86,
-            "sea_level": 1039.34,
-            "grnd_level": 957.86,
-            "humidity": 90},
-        "wind": {
-            "speed": 1.16,
-            "deg": 139.502},
-        "clouds": {
-            "all": 0
-        },
-        "weather": [{
-            "id": 800,
-            "main": "Clear",
-            "description": "Sky is Clear",
-            "icon": "01n"
-        }],
-        "dt": 1485722804}, {
-        "main": {
-            "temp": 263.847,
-            "temp_min": 263.847,
-            "temp_max": 263.847,
-            "pressure": 955.78,
-            "sea_level": 1037.43,
-            "grnd_level": 955.78,
-            "humidity": 91},
-        "wind": {
-            "speed": 1.49,
-            "deg": 159
-        },
-        "clouds": {
-            "all": 0
-        },
-        "weather": [{
-            "id": 800,
-            "main": "Clear",
-            "description": "Sky is Clear",
-            "icon": "01n"}],
-        "dt": 1485749608}, {
-        "main": {
-            "temp": 274.9,
-            "pressure": 1019,
-            "temp_min": 274.15,
-            "temp_max": 275.15,
-            "humidity": 88},
-        "wind": {
-            "speed": 1,
-            "deg": 0},
-        "clouds": {
-            "all": 76},
-        "weather": [
-            {"id": 500,
-             "main": "Rain",
-             "description": "light rain",
-             "icon": "10d"}],
-        "dt": 1485773778
-    }]
-}
+@app.route('/python/convert', methods=["POST"])
+def convert():
+    global UNIT_TYPE
+    data = json.loads(request.data.decode())
+    from_unit = data['from_unit']
+    to_unit = data['to_unit']
+    area = data['area']
+    return_area = conv.convert_area(area, from_unit, to_unit)
+    UNIT_TYPE = to_unit
+    return jsonify(return_area)
+
+
+@app.route('/python/saveArea', methods=["POST"])
+def saveArea():
+    data = json.loads(request.data.decode())
+    points = convert_to_points(data['coordinates']['val'])
+    area = conv.convert_area(data['area'], data['unitType'], 'sq.kms')
+    user.add_saved_land(area, points, data['center'])
+    return jsonify('ok')
+
 
 if __name__ == "__main__":
     app.run()

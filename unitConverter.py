@@ -1,4 +1,4 @@
-supported_units = ['sq.kms', 'sq.meters', 'sq.miles', 'sq.feet', 'sq.inches', 'Acre', 'Hectare']
+supported_units = ['sq.kms', 'sq.meters', 'sq.miles', 'sq.feet', 'sq.inches', 'Acre', 'Hectare', 'Perch']
 
 ratio_to_sq_inch = {
     'sq.kms': 1550003100.0062,
@@ -7,7 +7,8 @@ ratio_to_sq_inch = {
     'sq.feet': 144,
     'sq.inches': 1,
     'Acre': 6272640,
-    'Hectare': 15500031.000062
+    'Hectare': 15500031.000062,
+    'Perch': 39204
 }
 
 

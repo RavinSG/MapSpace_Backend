@@ -41,5 +41,3 @@ def login_user(username, password):
         )
 
 
-# add_user("ravin", "test123")
-# login_user("ravin", "test123")
